@@ -1,0 +1,30 @@
+{
+  "packageName": "Google Photos",
+  "author": "David Kilgore",
+  "minimumHEVersion": "1.0.8",
+  "documentationLink": "https://github.com/dkilgore90/google-photos/blob/master/README.md",
+  "communityLink": "https://community.hubitat.com/t/google-photos-api-hubitat-dashboard-frame/72103",
+  "dateReleased": "2021-05-15",
+  "apps": [
+    {
+      "id": "a2b6b372-5f9c-4200-b34f-a9d252e55948",
+      "name": "Google Photos App",
+      "namespace": "dkilgore90",
+      "location": "https://raw.githubusercontent.com/dkilgore90/google-photos/master/photos-app.groovy",
+      "required": true,
+      "oauth": true,
+      "primary": true,
+      "version": "0.0.1"
+    }
+  ],
+  "drivers": [
+    {
+      "id": "2fd75b29-b192-42b6-8a8f-b7a963b8c932",
+      "name": "Google Photos Device",
+      "namespace": "dkilgore90",
+      "location": "https://raw.githubusercontent.com/dkilgore90/google-photos/master/photos-device.groovy",
+      "required": true,
+      "version": "0.0.1"
+    }
+  ]
+}
