@@ -12,7 +12,7 @@ import groovy.json.JsonSlurper
  *  from the copyright holder
  *  Software is provided without warranty and your use of it is at your own risk.
  *
- *  version: 0.0.1
+ *  version: 0.0.2
  */
 
 definition(
@@ -148,8 +148,7 @@ def getCredentials() {
         def creds = new JsonSlurper().parseText(credentials)
         return creds.web
     } catch (Throwable e) {
-        log.trace(e)
-        log.trace('stackOverflow')
+        //ignore -- this is thrown when the App first loads, before credentials can be entered
     }
 }
 
