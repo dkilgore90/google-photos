@@ -12,7 +12,7 @@ import groovy.json.JsonSlurper
  *  from the copyright holder
  *  Software is provided without warranty and your use of it is at your own risk.
  *
- *  version: 0.1.0
+ *  version: 0.1.1
  */
 
 definition(
@@ -192,7 +192,7 @@ def updated() {
         runEvery1Minute(getNextPhoto)
     }
     if (refreshPhotosNightly) {
-        schedule('* * 23 ? * *', loadPhotos)
+        schedule('0 0 23 ? * *', loadPhotos)
     }
 }
 
