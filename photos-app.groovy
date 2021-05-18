@@ -12,7 +12,7 @@ import groovy.json.JsonSlurper
  *  from the copyright holder
  *  Software is provided without warranty and your use of it is at your own risk.
  *
- *  version: 0.0.2
+ *  version: 0.1.0
  */
 
 definition(
@@ -63,9 +63,10 @@ def mainPage() {
             input 'imgWidgh', 'text', title: 'width', defaultValue: '2048', submitOnChange: true
             input 'imgHeight', 'text', title: 'height', defaultValue: '1024', submitOnChange: true
             input name: "debugOutput", type: "bool", title: "Enable Debug Logging?", defaultValue: false, submitOnChange: true
+            input 'refreshInterval', 'number', title: 'Refresh interval (s)', defaultValue: 60, range: '2..60', required: true, submitOnChange: true
         }
 
-        getPhotosButton()  
+        getPhotosButton()
         getDebugLink()
     }
 }
@@ -123,13 +124,13 @@ def getPhotosButton() {
     if (state?.googleAccessToken != null && albumToUse) {
         section {
             input 'loadPhotos', 'button', title: 'Load Photos from Album', submitOnChange: true
+            input 'refreshPhotosNightly', 'bool', title: 'Refresh list of photos in album nightly?', defaultValue: false, submitOnChange: true
         }
     } else {
         section {
             paragraph "Load Photos button is hidden until authorization is completed and album is selected."
         }
     }
-
 }
 
 def getDebugLink() {
@@ -183,6 +184,16 @@ def mainPageLink() {
 def updated() {
     log.info 'Google Photos App updating'
     rescheduleLogin()
+    unschedule(getNextPhoto)
+    if (refreshInterval < 60) {
+        def sec = (new Date().getSeconds() % refreshInterval)
+        schedule("${sec}/${refreshInterval} * * ? * *", getNextPhoto)
+    } else {
+        runEvery1Minute(getNextPhoto)
+    }
+    if (refreshPhotosNightly) {
+        schedule('* * 23 ? * *', loadPhotos)
+    }
 }
 
 def installed() {
@@ -190,7 +201,7 @@ def installed() {
     createAccessToken()
     subscribe(location, 'systemStart', initialize)
     state.albumNames = []
-    runEvery1Minute(getNextPhoto)
+    schedule("*/${refreshInterval} * * ? * *", getNextPhoto)
     state.deviceId = UUID.randomUUID().toString()
     addChildDevice('dkilgore90', 'Google Photos Device', state.deviceId)
 }
@@ -398,6 +409,7 @@ def getNextPhoto() {
     } else {
         state.index = 0
     }
+    logDebug("Getting URL for image ID: ${id}")
     def uri = "https://photoslibrary.googleapis.com/v1/mediaItems/${id}"
     def headers = [ Authorization: 'Bearer ' + state.googleAccessToken ]
     def contentType = 'application/json'
@@ -433,27 +445,4 @@ def handlePhotoGet(resp, data) {
 
 def logToken() {
     log.debug("Access Token: ${state.googleAccessToken}")
-}
-
-def checkGoogle() {
-    def params = [
-        uri: 'https://smartdevicemanagement.googleapis.com',
-        timeout: 5
-    ]
-    asynchttpGet(handleCheckGoogle, params)
-}
-
-def handleCheckGoogle(resp, data) {
-    if (resp.hasError() && (resp.getStatus() != 404)) {
-        if (state.online) {
-            log.warn('Google connection outage detected')
-        }
-        state.online = false
-    } else {
-        if (!state.online) {
-            log.info('Google connection recovered')
-            recover()
-        }
-        state.online = true
-    }
 }
