@@ -12,7 +12,7 @@ import groovy.json.JsonSlurper
  *  from the copyright holder
  *  Software is provided without warranty and your use of it is at your own risk.
  *
- *  version: 0.1.1
+ *  version: 0.2.0
  */
 
 definition(
@@ -436,10 +436,16 @@ def handlePhotoGet(resp, data) {
         }
     } else {
         def respJson = resp.getJson()
-        def w = imgWidth ?: 2048
-        def h = imgHeight ?: 1024
         device = getChildDevice(state.deviceId)
-        sendEvent(device, [name: 'image', value: '<img src="' + "${respJson.baseUrl}=w${w}-h${h}" + '" />'])
+        if (respJson?.mediaMetadata?.photo) {
+            def w = imgWidth ?: 2048
+            def h = imgHeight ?: 1024
+            sendEvent(device, [name: 'image', value: '<img src="' + "${respJson.baseUrl}=w${w}-h${h}" + '" />'])
+            sendEvent(device, [name: 'mediaType', value: 'photo'])
+        } else if (respJson?.mediaMetadata?.video) {
+            sendEvent(device, [name: 'image', value: '<video autoplay loop><source src="' + "${respJson.baseUrl}=dv" + '" type="' + "${respJson.mimeType}" + '"></video>'])
+            sendEvent(device, [name: 'mediaType', value: 'video'])
+        }
     }
 }
 

@@ -14,7 +14,7 @@
       "required": true,
       "oauth": true,
       "primary": true,
-      "version": "0.1.1"
+      "version": "0.2.0"
     }
   ],
   "drivers": [
@@ -24,7 +24,7 @@
       "namespace": "dkilgore90",
       "location": "https://raw.githubusercontent.com/dkilgore90/google-photos/master/photos-device.groovy",
       "required": true,
-      "version": "0.0.1"
+      "version": "0.0.2"
     }
   ]
 }

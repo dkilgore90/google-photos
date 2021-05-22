@@ -10,7 +10,7 @@
  *  from the copyright holder
  *  Software is provided without warranty and your use of it is at your own risk.
  *
- *  version: 0.0.1
+ *  version: 0.0.2
  */
 
 metadata {
@@ -18,6 +18,7 @@ metadata {
         capability 'Refresh'
 
         attribute 'image', 'string'
+        attribute 'mediaType', 'string'
     }
     
     preferences {
@@ -45,6 +46,7 @@ def uninstalled() {
 
 def initialize() {
     device.sendEvent(name: 'image', value: device.currentValue('image') ?: '<img src="" />')
+    device.sendEvent(name: 'mediaType', value: device.currentValue('mediaType') ?: 'image')
 }
 
 def refresh() {
