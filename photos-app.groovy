@@ -12,7 +12,7 @@ import groovy.json.JsonSlurper
  *  from the copyright holder
  *  Software is provided without warranty and your use of it is at your own risk.
  *
- *  version: 0.2.0
+ *  version: 0.2.1
  */
 
 definition(
@@ -96,7 +96,7 @@ def getAuthLink() {
                 url        : 'https://accounts.google.com/o/oauth2/v2/auth?' + 
                                 'redirect_uri=https://cloud.hubitat.com/oauth/stateredirect' +
                                 '&state=' + getHubUID() + '/apps/' + app.id + '/handleAuth?access_token=' + state.accessToken +
-                                '&access_type=offline&prompt=consent&client_id=' + creds.client_id + 
+                                '&access_type=offline&prompt=consent&client_id=' + creds?.client_id + 
                                 '&response_type=code&scope=https://www.googleapis.com/auth/photoslibrary.readonly',
                 description: 'Click this link to authorize with your Google Photos library'
             )
@@ -201,7 +201,12 @@ def installed() {
     createAccessToken()
     subscribe(location, 'systemStart', initialize)
     state.albumNames = []
-    schedule("*/${refreshInterval} * * ? * *", getNextPhoto)
+    if (refreshInterval < 60) {
+        def sec = (new Date().getSeconds() % refreshInterval)
+        schedule("${sec}/${refreshInterval} * * ? * *", getNextPhoto)
+    } else {
+        runEvery1Minute(getNextPhoto)
+    }
     state.deviceId = UUID.randomUUID().toString()
     addChildDevice('dkilgore90', 'Google Photos Device', state.deviceId)
 }

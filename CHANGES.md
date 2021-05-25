@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2021-05-25
+
+### photos-app:0.2.1
+* Bugfix: cron exception on new installs
+
 ## 2021-05-21
 
 ### photos-app:0.2.0
