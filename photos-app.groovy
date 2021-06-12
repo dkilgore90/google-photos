@@ -65,6 +65,7 @@ def mainPage() {
             input name: "debugOutput", type: "bool", title: "Enable Debug Logging?", defaultValue: false, submitOnChange: true
             input 'refreshInterval', 'number', title: 'Refresh interval', defaultValue: 60, range: '2..60', required: true, submitOnChange: true
             input 'refreshUnits', 'enum', title: 'Refresh interval -- units', defaultValue: 'seconds', options: ['seconds', 'minutes'], required: true, submitOnChange: true
+            input 'shuffle', 'bool', title: 'Shuffle images each time through album?', defaultValue: false, submitOnChange: true
         }
 
         getPhotosButton()
@@ -429,6 +430,10 @@ def getNextPhoto() {
     def index = state.index + 1
     if (index >= state.photos.size()) {
         index = 0
+        if (shuffle) {
+            logDebug('Shuffling photo order...')
+            Collections.shuffle(state.photos)
+        }
     }
     def id = state.photos[index]
     state.index = index

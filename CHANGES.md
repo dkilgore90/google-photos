@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### photos-app:0.3.0
 * Refresh interval can be in seconds or minutes
+* New preference to shuffle album on each cycle
 * Support new device commands next, previous, pause, resume
 
 ### photos-device:0.1.0
