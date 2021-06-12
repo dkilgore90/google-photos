@@ -12,7 +12,7 @@ import groovy.json.JsonSlurper
  *  from the copyright holder
  *  Software is provided without warranty and your use of it is at your own risk.
  *
- *  version: 0.2.1
+ *  version: 0.3.0
  */
 
 definition(
@@ -63,7 +63,8 @@ def mainPage() {
             input 'imgWidgh', 'text', title: 'width', defaultValue: '2048', submitOnChange: true
             input 'imgHeight', 'text', title: 'height', defaultValue: '1024', submitOnChange: true
             input name: "debugOutput", type: "bool", title: "Enable Debug Logging?", defaultValue: false, submitOnChange: true
-            input 'refreshInterval', 'number', title: 'Refresh interval (s)', defaultValue: 60, range: '2..60', required: true, submitOnChange: true
+            input 'refreshInterval', 'number', title: 'Refresh interval', defaultValue: 60, range: '2..60', required: true, submitOnChange: true
+            input 'refreshUnits', 'enum', title: 'Refresh interval -- units', defaultValue: 'seconds', options: ['seconds', 'minutes'], required: true, submitOnChange: true
         }
 
         getPhotosButton()
@@ -185,12 +186,7 @@ def updated() {
     log.info 'Google Photos App updating'
     rescheduleLogin()
     unschedule(getNextPhoto)
-    if (refreshInterval < 60) {
-        def sec = (new Date().getSeconds() % refreshInterval)
-        schedule("${sec}/${refreshInterval} * * ? * *", getNextPhoto)
-    } else {
-        runEvery1Minute(getNextPhoto)
-    }
+    resume()
     if (refreshPhotosNightly) {
         schedule('0 0 23 ? * *', loadPhotos)
     }
@@ -201,12 +197,7 @@ def installed() {
     createAccessToken()
     subscribe(location, 'systemStart', initialize)
     state.albumNames = []
-    if (refreshInterval < 60) {
-        def sec = (new Date().getSeconds() % refreshInterval)
-        schedule("${sec}/${refreshInterval} * * ? * *", getNextPhoto)
-    } else {
-        runEvery1Minute(getNextPhoto)
-    }
+    resume()
     state.deviceId = UUID.randomUUID().toString()
     addChildDevice('dkilgore90', 'Google Photos Device', state.deviceId)
 }
@@ -296,6 +287,32 @@ def appButtonHandler(btn) {
     case 'refreshToken':
         refreshLogin()
         break
+    }
+}
+
+def pausePhotos() {
+    logDebug('Pausing slideshow')
+    unschedule(getNextPhoto)
+}
+
+def resume() {
+    logDebug("Resuming slideshow with interval: ${refreshInterval} ${refreshUnits ?: 'seconds'}")
+    if (refreshUnits == 'seconds' || refreshUnits == null) {
+        if (refreshInterval < 60) {
+            def sec = (new Date().getSeconds() % refreshInterval)
+            schedule("${sec}/${refreshInterval} * * ? * *", getNextPhoto)
+        } else {
+            runEvery1Minute(getNextPhoto)
+        }
+    } else {
+        if (refreshInterval < 60) {
+            def ts = new Date()
+            def sec = ts.getSeconds()
+            def min = (ts.getMinutes() % refreshInterval)
+            schedule("${sec} ${min}/${refreshInterval} * ? * *", getNextPhoto)
+        } else {
+            runEvery1Hour(getNextPhoto)
+        }
     }
 }
 
@@ -404,16 +421,36 @@ def handlePhotosList(resp, data) {
 }
 
 def getNextPhoto() {
+    logDebug('Loading next photo...')
     if (state.index == null) {
+        log.warn('invalid array index: null')
         return
     }
-    def id = state.photos[state.index]
     def index = state.index + 1
-    if (index < state.photos.size()) {
-       state.index = index 
-    } else {
-        state.index = 0
+    if (index >= state.photos.size()) {
+        index = 0
     }
+    def id = state.photos[index]
+    state.index = index
+    getPhotoById(id)
+}
+
+def getPrevPhoto() {
+    log.debug('Loading previous photo...')
+    if (state.index == null) {
+        log.warn('invalid array index: null')
+        return
+    }
+    def index = state.index - 1
+    if (index < 0) {
+        index = state.photos.size() - 1
+    }
+    def id = state.photos[index]
+    state.index = index
+    getPhotoById(id)
+}
+
+def getPhotoById(id) {
     logDebug("Getting URL for image ID: ${id}")
     def uri = "https://photoslibrary.googleapis.com/v1/mediaItems/${id}"
     def headers = [ Authorization: 'Bearer ' + state.googleAccessToken ]

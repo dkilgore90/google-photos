@@ -10,7 +10,7 @@
  *  from the copyright holder
  *  Software is provided without warranty and your use of it is at your own risk.
  *
- *  version: 0.0.2
+ *  version: 0.1.0
  */
 
 metadata {
@@ -19,6 +19,11 @@ metadata {
 
         attribute 'image', 'string'
         attribute 'mediaType', 'string'
+
+        command 'next'
+        command 'previous'
+        command 'pause'
+        command 'resume'
     }
     
     preferences {
@@ -53,3 +58,18 @@ def refresh() {
     parent.getNextPhoto()
 }
 
+def next() {
+    parent.getNextPhoto()
+}
+
+def previous() {
+    parent.getPrevPhoto()
+}
+
+def pause() {
+    parent.pausePhotos()
+}
+
+def resume() {
+    parent.resume()
+}

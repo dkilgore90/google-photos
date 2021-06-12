@@ -2,6 +2,15 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2021-06-11
+
+### photos-app:0.3.0
+* Refresh interval can be in seconds or minutes
+* Support new device commands next, previous, pause, resume
+
+### photos-device:0.1.0
+* New commands: next, previous, pause, resume
+
 ## 2021-05-25
 
 ### photos-app:0.2.1
