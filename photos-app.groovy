@@ -12,7 +12,7 @@ import groovy.json.JsonSlurper
  *  from the copyright holder
  *  Software is provided without warranty and your use of it is at your own risk.
  *
- *  version: 0.3.0
+ *  version: 0.3.1
  */
 
 definition(
@@ -417,6 +417,9 @@ def handlePhotosList(resp, data) {
         state.index = 0
         if (respJson.nextPageToken) {
             loadPhotos(false, respJson.nextPageToken)
+        } else if (shuffle) {
+            logDebug('Shuffling photo order...')
+            Collections.shuffle(state.photos)
         }
     }
 }
