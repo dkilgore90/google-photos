@@ -490,7 +490,8 @@ def handlePhotoGet(resp, data) {
         if (respJson?.mediaMetadata?.photo) {
             def w = imgWidth ?: 2048
             def h = imgHeight ?: 1024
-            sendEvent(device, [name: 'image', value: '<img src="' + "${respJson.baseUrl}=w${w}-h${h}" + '" />'])
+            //sendEvent(device, [name: 'image', value: '<img src="' + "${respJson.baseUrl}=w${w}-h${h}" + '" />'])
+            sendEvent(device, [name: 'image', value: '<div id="image" style="height:100%;width:100%;background-image:url(' + "${respJson.baseUrl}=w${w}-h${h}" + ');background-repeat:no-repeat;background-size:contain;background-position:center center;"></div>'])
             sendEvent(device, [name: 'mediaType', value: 'photo'])
         } else if (respJson?.mediaMetadata?.video) {
             sendEvent(device, [name: 'image', value: '<video autoplay loop><source src="' + "${respJson.baseUrl}=dv" + '" type="' + "${respJson.mimeType}" + '"></video>'])
