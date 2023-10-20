@@ -12,7 +12,7 @@ import groovy.json.JsonSlurper
  *  from the copyright holder
  *  Software is provided without warranty and your use of it is at your own risk.
  *
- *  version: 0.3.1
+ *  version: 0.3.2
  */
 
 definition(
@@ -184,7 +184,10 @@ def mainPageLink() {
 }
 
 def updated() {
-    log.info 'Google Photos App updating'
+    log.info "Google Photos App (${albumToUse}) updating"
+    app.updateLabel("Google Photos App (${albumToUse})")
+    dev = getChildDevice(state.deviceId)
+    dev.setLabel("Google Photos App (${albumToUse})")
     rescheduleLogin()
     unschedule(getNextPhoto)
     resume()
@@ -194,17 +197,17 @@ def updated() {
 }
 
 def installed() {
-    log.info 'Google Photos App installed'
+    log.info "Google Photos App (${albumToUse}) installed"
     createAccessToken()
     subscribe(location, 'systemStart', initialize)
     state.albumNames = []
     resume()
     state.deviceId = UUID.randomUUID().toString()
-    addChildDevice('dkilgore90', 'Google Photos Device', state.deviceId)
+    addChildDevice('dkilgore90', "Google Photos Device (${albumToUse})", state.deviceId)
 }
 
 def uninstalled() {
-    log.info 'Google Photos App uninstalling'
+    log.info "Google Photos App (${albumToUse}) uninstalling"
     unschedule()
     unsubscribe()
     deleteChildDevice(state.deviceId)
@@ -487,13 +490,13 @@ def handlePhotoGet(resp, data) {
     } else {
         def respJson = resp.getJson()
         device = getChildDevice(state.deviceId)
-        if (respJson?.mediaMetadata?.photo) {
+        if (respJson?.mediaMetadata?.containsKey('photo')) {
             def w = imgWidth ?: 2048
             def h = imgHeight ?: 1024
-            //sendEvent(device, [name: 'image', value: '<img src="' + "${respJson.baseUrl}=w${w}-h${h}" + '" />'])
-            sendEvent(device, [name: 'image', value: '<div id="image" style="height:100%;width:100%;background-image:url(' + "${respJson.baseUrl}=w${w}-h${h}" + ');background-repeat:no-repeat;background-size:contain;background-position:center center;"></div>'])
+            sendEvent(device, [name: 'image', value: '<div style="box-sizing: content-box"><img style="height: 100%; width: 100%; object-fit: contain" src="' + "${respJson.baseUrl}=w${w}-h${h}" + '" /></div>'])
+            //sendEvent(device, [name: 'image', value: '<div id="image" style="height:100%;width:100%;background-image:url(' + "${respJson.baseUrl}=w${w}-h${h}" + ');background-repeat:no-repeat;background-size:contain;background-position:center center;"></div>'])
             sendEvent(device, [name: 'mediaType', value: 'photo'])
-        } else if (respJson?.mediaMetadata?.video) {
+        } else if (respJson?.mediaMetadata?.containsKey('video')) {
             sendEvent(device, [name: 'image', value: '<video autoplay loop><source src="' + "${respJson.baseUrl}=dv" + '" type="' + "${respJson.mimeType}" + '"></video>'])
             sendEvent(device, [name: 'mediaType', value: 'video'])
         }
