@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2023-10-19
+
+### photos-app:0.3.2
+* Images should be resized to fit the dashboard frame, instead of potential cropping
+* App/Device names are auto-updated with the selected album name when clicking "Done" in the App.
+* Image/Video processing validates metadata keys directly instead of relying on Groovy truth of their values
+
 ## 2021-07-25
 
 ### photos-app:0.3.1
