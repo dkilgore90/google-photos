@@ -12,7 +12,7 @@ import groovy.json.JsonSlurper
  *  from the copyright holder
  *  Software is provided without warranty and your use of it is at your own risk.
  *
- *  version: 0.3.2
+ *  version: 0.3.3
  */
 
 definition(
@@ -197,13 +197,13 @@ def updated() {
 }
 
 def installed() {
-    log.info "Google Photos App (${albumToUse}) installed"
+    log.info "Google Photos App installed"
     createAccessToken()
     subscribe(location, 'systemStart', initialize)
     state.albumNames = []
     resume()
     state.deviceId = UUID.randomUUID().toString()
-    addChildDevice('dkilgore90', "Google Photos Device (${albumToUse})", state.deviceId)
+    addChildDevice('dkilgore90', "Google Photos Device", state.deviceId)
 }
 
 def uninstalled() {
