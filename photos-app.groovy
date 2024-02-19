@@ -197,7 +197,7 @@ def updated() {
 }
 
 def installed() {
-    log.info "Google Photos App (${albumToUse}) installed"
+    log.info "Google Photos App installed"
     createAccessToken()
     subscribe(location, 'systemStart', initialize)
     state.albumNames = []
